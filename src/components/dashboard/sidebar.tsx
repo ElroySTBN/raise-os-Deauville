@@ -14,12 +14,12 @@ import {
 import { cn } from '@/lib/utils'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Clients', href: '/dashboard/clients', icon: Users },
-  { name: 'Content', href: '/dashboard/content', icon: FileText },
-  { name: 'Reports', href: '/dashboard/reports', icon: BarChart3 },
+  { name: 'Tableau de bord', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Gestion Clients', href: '/dashboard/clients', icon: Users },
+  { name: 'Contenu', href: '/dashboard/content', icon: FileText },
+  { name: 'Rapports', href: '/dashboard/reports', icon: BarChart3 },
   { name: 'Notifications', href: '/dashboard/notifications', icon: Bell },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { name: 'Paramètres', href: '/dashboard/settings', icon: Settings },
 ]
 
 export function Sidebar() {

@@ -75,8 +75,12 @@ export function ClientForm({ client }: ClientFormProps) {
           .update(data)
           .eq('id', client.id)
 
-        if (updateError) throw updateError
+        if (updateError) {
+          console.error('Update error:', updateError)
+          throw new Error(updateError.message || 'Failed to update client')
+        }
         router.push(`/dashboard/clients/${client.id}`)
+        router.refresh()
       } else {
         // Create new client
         const { data: newClient, error: insertError } = await supabase
@@ -85,11 +89,21 @@ export function ClientForm({ client }: ClientFormProps) {
           .select()
           .single()
 
-        if (insertError) throw insertError
+        if (insertError) {
+          console.error('Insert error:', insertError)
+          throw new Error(insertError.message || 'Failed to create client')
+        }
+
+        if (!newClient || !newClient.id) {
+          throw new Error('Client created but no ID returned')
+        }
+
         router.push(`/dashboard/clients/${newClient.id}`)
+        router.refresh()
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred')
+      console.error('Form submission error:', err)
+      setError(err.message || 'An error occurred while saving the client')
       setIsSubmitting(false)
     }
   }
@@ -97,21 +111,21 @@ export function ClientForm({ client }: ClientFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <Card className="border-destructive">
+        <Card className="border-destructive shadow-sm">
           <CardContent className="pt-6">
             <p className="text-sm text-destructive">{error}</p>
           </CardContent>
         </Card>
       )}
 
-      <Card>
+      <Card className="shadow-sm hover:shadow-md transition-shadow">
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-          <CardDescription>Company details and contact information</CardDescription>
+          <CardTitle className="text-xs uppercase text-muted-foreground">Informations de base</CardTitle>
+          <CardDescription>Détails de l'entreprise et informations de contact</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="company_name">Company Name *</Label>
+            <Label htmlFor="company_name">Nom de l'entreprise *</Label>
             <Input
               id="company_name"
               name="company_name"
@@ -121,18 +135,18 @@ export function ClientForm({ client }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="industry">Industry</Label>
+            <Label htmlFor="industry">Secteur</Label>
             <Input
               id="industry"
               name="industry"
               defaultValue={client?.industry || ''}
-              placeholder="e.g., Healthcare, Restaurant, Legal Services"
+              placeholder="ex. : Santé, Restaurant, Services juridiques"
             />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">Téléphone</Label>
               <Input
                 id="phone"
                 name="phone"
@@ -143,29 +157,29 @@ export function ClientForm({ client }: ClientFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="website_url">Website URL</Label>
+              <Label htmlFor="website_url">URL du site web</Label>
               <Input
                 id="website_url"
                 name="website_url"
                 type="url"
                 defaultValue={client?.website_url || ''}
-                placeholder="https://example.com"
+                placeholder="https://exemple.com"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="address">Adresse</Label>
             <Input
               id="address"
               name="address"
               defaultValue={client?.address || ''}
-              placeholder="123 Main Street, City, Country"
+              placeholder="123 Rue Principale, Ville, Pays"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="google_maps_url">Google Maps URL</Label>
+            <Label htmlFor="google_maps_url">URL Google Maps</Label>
             <Input
               id="google_maps_url"
               name="google_maps_url"
@@ -177,14 +191,14 @@ export function ClientForm({ client }: ClientFormProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="shadow-sm hover:shadow-md transition-shadow">
         <CardHeader>
-          <CardTitle>Google Business Profile</CardTitle>
-          <CardDescription>GBP connection details</CardDescription>
+          <CardTitle className="text-xs uppercase text-muted-foreground">Google Business Profile</CardTitle>
+          <CardDescription>Détails de connexion GBP</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="gbp_location_id">GBP Location ID</Label>
+            <Label htmlFor="gbp_location_id">ID d'emplacement GBP</Label>
             <Input
               id="gbp_location_id"
               name="gbp_location_id"
@@ -192,21 +206,21 @@ export function ClientForm({ client }: ClientFormProps) {
               placeholder="ChIJN1t_tDeuEmsRUsoyG83frY4"
             />
             <p className="text-xs text-muted-foreground">
-              Google Place ID for this business location
+              Google Place ID pour cet emplacement commercial
             </p>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="shadow-sm hover:shadow-md transition-shadow">
         <CardHeader>
-          <CardTitle>Subscription Management</CardTitle>
-          <CardDescription>Client subscription details</CardDescription>
+          <CardTitle className="text-xs uppercase text-muted-foreground">Gestion de l'abonnement</CardTitle>
+          <CardDescription>Détails de l'abonnement client</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="subscription_status">Status</Label>
+              <Label htmlFor="subscription_status">Statut</Label>
               <Select
                 value={subscriptionStatus}
                 onValueChange={setSubscriptionStatus}
@@ -215,9 +229,9 @@ export function ClientForm({ client }: ClientFormProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="paused">Paused</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="active">Actif</SelectItem>
+                  <SelectItem value="paused">En pause</SelectItem>
+                  <SelectItem value="cancelled">Annulé</SelectItem>
                 </SelectContent>
               </Select>
               <input
@@ -228,7 +242,7 @@ export function ClientForm({ client }: ClientFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="subscription_start_date">Start Date</Label>
+              <Label htmlFor="subscription_start_date">Date de début</Label>
               <Input
                 id="subscription_start_date"
                 name="subscription_start_date"
@@ -243,7 +257,7 @@ export function ClientForm({ client }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="monthly_report_day">Monthly Report Day</Label>
+            <Label htmlFor="monthly_report_day">Jour du rapport mensuel</Label>
             <Input
               id="monthly_report_day"
               name="monthly_report_day"
@@ -253,16 +267,16 @@ export function ClientForm({ client }: ClientFormProps) {
               defaultValue={client?.monthly_report_day || 1}
             />
             <p className="text-xs text-muted-foreground">
-              Day of the month (1-28) when the monthly report should be generated
+              Jour du mois (1-28) où le rapport mensuel doit être généré
             </p>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="shadow-sm hover:shadow-md transition-shadow">
         <CardHeader>
-          <CardTitle>Additional Information</CardTitle>
-          <CardDescription>Notes and metadata</CardDescription>
+          <CardTitle className="text-xs uppercase text-muted-foreground">Informations supplémentaires</CardTitle>
+          <CardDescription>Notes et métadonnées</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -271,13 +285,13 @@ export function ClientForm({ client }: ClientFormProps) {
               id="notes"
               name="notes"
               defaultValue={client?.notes || ''}
-              placeholder="Internal notes about this client..."
+              placeholder="Notes internes sur ce client..."
               rows={4}
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            Note: Buyer Persona, Tone of Voice, and Competitors can be added later via the edit page
-            or through the onboarding form.
+            Note : Le Persona Acheteur, le Ton de Voix et les Concurrents peuvent être ajoutés plus tard via la page d'édition
+            ou via le formulaire d'onboarding.
           </p>
         </CardContent>
       </Card>
@@ -288,11 +302,16 @@ export function ClientForm({ client }: ClientFormProps) {
           variant="outline"
           onClick={() => router.back()}
           disabled={isSubmitting}
+          className="transition-all duration-200 hover:scale-105 active:scale-95"
         >
-          Cancel
+          Annuler
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : client ? 'Update Client' : 'Create Client'}
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="transition-all duration-200 hover:scale-105 active:scale-95"
+        >
+          {isSubmitting ? 'Enregistrement...' : client ? 'Mettre à jour le client' : 'Créer le client'}
         </Button>
       </div>
     </form>

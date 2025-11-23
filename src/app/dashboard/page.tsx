@@ -21,37 +21,37 @@ export default async function DashboardPage() {
       value: clientsResult.count || 0,
       icon: Users,
       href: '/dashboard/clients',
-      description: 'Active clients',
+      description: 'Clients actifs',
     },
     {
-      title: 'Content Posts',
+      title: 'Publications',
       value: postsResult.count || 0,
       icon: FileText,
       href: '/dashboard/content',
-      description: 'All generated posts',
+      description: 'Publications générées',
     },
     {
-      title: 'Monthly Reports',
+      title: 'Rapports Mensuels',
       value: reportsResult.count || 0,
       icon: BarChart3,
       href: '/dashboard/reports',
-      description: 'Generated reports',
+      description: 'Rapports générés',
     },
     {
-      title: 'Unread Notifications',
+      title: 'Notifications Non Lues',
       value: notificationsResult.count || 0,
       icon: Bell,
       href: '/dashboard/notifications',
-      description: 'Requires attention',
+      description: 'Nécessitent une attention',
     },
   ]
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-bold">Tableau de bord</h1>
         <p className="text-muted-foreground">
-          Welcome to RaiseMed OS - Your GBP optimization command center
+          Bienvenue sur RaiseMed OS - Votre centre de commande pour l'optimisation GBP
         </p>
       </div>
 
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
           const Icon = stat.icon
           return (
             <Link key={stat.title} href={stat.href}>
-              <Card className="hover:bg-accent transition-colors cursor-pointer">
+              <Card className="hover:bg-accent transition-colors cursor-pointer shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
                   <Icon className="h-4 w-4 text-muted-foreground" />

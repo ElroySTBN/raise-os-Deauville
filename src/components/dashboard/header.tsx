@@ -67,7 +67,7 @@ export function Header() {
             </AvatarFallback>
           </Avatar>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            Sign Out
+            Déconnexion
           </Button>
         </div>
       </div>

@@ -2,9 +2,9 @@ export default function ContentPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Content</h1>
+        <h1 className="text-3xl font-bold">Contenu</h1>
         <p className="text-muted-foreground">
-          Generate and manage GBP posts (Coming in Phase 5)
+          Générez et gérez les publications GBP (À venir dans la Phase 5)
         </p>
       </div>
     </div>

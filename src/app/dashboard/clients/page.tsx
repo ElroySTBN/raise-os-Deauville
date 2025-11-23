@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Users } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { ClientCard } from '@/components/clients/client-card'
 
 export default async function ClientsPage({
   searchParams,
@@ -29,41 +29,28 @@ export default async function ClientsPage({
     console.error('Error fetching clients:', error)
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'default'
-      case 'paused':
-        return 'secondary'
-      case 'cancelled':
-        return 'destructive'
-      default:
-        return 'outline'
-    }
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Clients</h1>
+          <h1 className="text-3xl font-bold">Gestion Clients</h1>
           <p className="text-muted-foreground">
-            Manage your client database - the single source of truth
+            Gérez votre base de données clients - la source unique de vérité
           </p>
         </div>
         <Link href="/dashboard/clients/new">
-          <Button>
+          <Button className="transition-all duration-200 hover:scale-105 active:scale-95">
             <Plus className="mr-2 h-4 w-4" />
-            Add Client
+            Ajouter un client
           </Button>
         </Link>
       </div>
 
-      <Card>
+      <Card className="shadow-sm hover:shadow-md transition-shadow">
         <CardHeader>
-          <CardTitle>All Clients</CardTitle>
+          <CardTitle className="text-xs uppercase text-muted-foreground">Tous les clients</CardTitle>
           <CardDescription>
-            {clients?.length || 0} client{(clients?.length || 0) !== 1 ? 's' : ''} in database
+            {clients?.length || 0} client{(clients?.length || 0) !== 1 ? 's' : ''} dans la base de données
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -73,7 +60,7 @@ export default async function ClientsPage({
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   name="search"
-                  placeholder="Search clients by name or industry..."
+                  placeholder="Rechercher des clients par nom ou secteur..."
                   defaultValue={search}
                   className="pl-10"
                 />
@@ -83,57 +70,21 @@ export default async function ClientsPage({
 
           {!clients || clients.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-muted-foreground mb-4">No clients found.</p>
+              <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+              <p className="text-muted-foreground mb-4">Aucun client pour le moment</p>
               <Link href="/dashboard/clients/new">
-                <Button>Add Your First Client</Button>
+                <Button className="transition-all duration-200 hover:scale-105 active:scale-95">
+                  Créer un client
+                </Button>
               </Link>
             </div>
           ) : (
             <div className="space-y-2">
               {clients.map((client) => (
-                <Link
+                <ClientCard
                   key={client.id}
-                  href={`/dashboard/clients/${client.id}`}
-                  className="block"
-                >
-                  <Card className="hover:bg-accent transition-colors cursor-pointer">
-                    <CardContent className="flex items-center justify-between p-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <h3 className="font-semibold">{client.company_name}</h3>
-                          <Badge variant={getStatusColor(client.subscription_status)}>
-                            {client.subscription_status}
-                          </Badge>
-                          {client.gbp_connected && (
-                            <Badge variant="outline">GBP Connected</Badge>
-                          )}
-                        </div>
-                        <div className="mt-1 flex items-center gap-4 text-sm text-muted-foreground">
-                          {client.industry && (
-                            <span>{client.industry}</span>
-                          )}
-                          {client.phone && (
-                            <span>{client.phone}</span>
-                          )}
-                          {client.website_url && (
-                            <a
-                              href={client.website_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:underline"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              Website
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Created {new Date(client.created_at).toLocaleDateString()}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                  client={client}
+                />
               ))}
             </div>
           )}
